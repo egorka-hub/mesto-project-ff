@@ -1,3 +1,5 @@
+const cardContainer = document.querySelector('.places__list');
+
 // @todo: Темплейт карточки
 
 // @todo: DOM узлы
@@ -32,7 +34,6 @@ const handleDeleteCard = (cardElement) => {
 // Render cards on the page
 
 const renderCards = function (cards) {
-  const cardContainer = document.querySelector('.places__list');
   cards.forEach((cardData) => {
     const cardElement = createCard(cardData, handleDeleteCard);
     cardContainer.appendChild(cardElement);
