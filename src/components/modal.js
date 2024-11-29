@@ -5,18 +5,12 @@
 // Opens a popup
 export function openPopup(popup) {
   popup.classList.add('popup_is-opened');
-  popup.style.visibility = 'visible';
-  popup.style.opacity = '1';
   document.addEventListener('keydown', handleEscape);
 }
 
 // Closes a popup
 export function closePopup(popup) {
-  popup.style.opacity = '0';
-  setTimeout(() => {
-    popup.style.visibility = 'hidden';
-    popup.classList.remove('popup_is-opened');
-  }, 600); // Matches CSS transition duration
+  popup.classList.remove('popup_is-opened');
   document.removeEventListener('keydown', handleEscape);
 }
 
