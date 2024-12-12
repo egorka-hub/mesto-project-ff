@@ -13,6 +13,10 @@ import {
   closePopup,
   setupPopupEventListeners,
 } from './components/modal.js';
+import {
+  setFormValidation,
+  resetValidation,
+} from './components/validationForm.js';
 
 // ====== DOM Elements ======
 const popups = document.querySelectorAll('.popup');
@@ -24,9 +28,13 @@ const popupImageElement = popupImage.querySelector('.popup__image');
 const popupCaption = popupImage.querySelector('.popup__caption');
 const popupEditOpenButton = document.querySelector('.profile__edit-button');
 const popupNewCardOpenButton = document.querySelector('.profile__add-button');
-const formElement = document.querySelector('.popup__form[name="edit-profile"]');
-const nameInput = formElement.querySelector('.popup__input_type_name');
-const jobInput = formElement.querySelector('.popup__input_type_description');
+const formEditProfile = document.querySelector(
+  '.popup__form[name="edit-profile"]'
+);
+const nameInput = formEditProfile.querySelector('.popup__input_type_name');
+const jobInput = formEditProfile.querySelector(
+  '.popup__input_type_description'
+);
 const profileTitle = document.querySelector('.profile__title');
 const profileDescription = document.querySelector('.profile__description');
 const formNewCard = document.querySelector('.popup__form[name="new-place"]');
@@ -80,6 +88,7 @@ function handleNewCardSubmit(evt) {
 
   closePopup(popupNewCard);
   formNewCard.reset();
+  resetValidation(formNewCard); // Сбрасываем состояние кнопки при закрытии
 }
 
 // ====== Initialization ======
@@ -89,14 +98,18 @@ popups.forEach((popup) => popup.classList.add('popup_is-animated'));
 
 // Add event listeners
 popupEditOpenButton.addEventListener('click', () => {
-  nameInput.value = profileTitle.textContent;
+  resetValidation(formEditProfile); // Очистка ошибок перед открытием формы
+  nameInput.value = profileTitle.textContent; // Подстановка валидных данных
   jobInput.value = profileDescription.textContent;
   openPopup(popupEdit);
 });
 
-popupNewCardOpenButton.addEventListener('click', () => openPopup(popupNewCard));
+popupNewCardOpenButton.addEventListener('click', () => {
+  resetValidation(formNewCard); // Очистка ошибок и сброс кнопки
+  openPopup(popupNewCard);
+});
 
-formElement.addEventListener('submit', handleEditProfileSubmit);
+formEditProfile.addEventListener('submit', handleEditProfileSubmit);
 formNewCard.addEventListener('submit', handleNewCardSubmit);
 
 // Setup popup event listeners
@@ -104,3 +117,7 @@ setupPopupEventListeners(popups);
 
 // Render initial cards
 renderCards(initialCards);
+
+// Enable validation for both forms
+setFormValidation(formEditProfile);
+setFormValidation(formNewCard);

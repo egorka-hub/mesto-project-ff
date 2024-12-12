@@ -44,7 +44,7 @@
         <div class="popup__content">
           <button type="button" class="popup__close"></button>
           <h3 class="popup__title">Редактировать профиль</h3>
-          <form class="popup__form" name="edit-profile">
+          <form class="popup__form" name="edit-profile" novalidate>
             <input
               type="text"
               name="name"
@@ -52,6 +52,8 @@
               placeholder="Имя"
               required
             />
+            <span class="popup__input-error" id="name-error"></span>
+            
             <input
               type="text"
               name="description"
@@ -59,9 +61,9 @@
               placeholder="Занятие"
               required
             />
-            <button type="submit" class="button popup__button">
-              Сохранить
-            </button>
+            <span class="popup__input-error" id="description-error"></span>
+            
+            <button type="submit" class="button popup__button">Сохранить</button>
           </form>
         </div>
       </div>
@@ -77,6 +79,8 @@
               placeholder="Название"
               required
             />
+            <span class="popup__input-error" id="place-name-error"></span>
+
             <input
               type="url"
               name="link"
@@ -84,9 +88,9 @@
               placeholder="Ссылка на картинку"
               required
             />
-            <button type="submit" class="button popup__button">
-              Сохранить
-            </button>
+            <span class="popup__input-error" id="link-error"></span>
+            
+            <button type="submit" class="button popup__button">Сохранить</button>
           </form>
         </div>
       </div>
