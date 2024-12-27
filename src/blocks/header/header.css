@@ -1,5 +1,3 @@
-@import url('./__logo/header__logo.css');
-
 .header {
   min-height: 120px;
   font-family: 'Inter', Arial, sans-serif;
@@ -24,6 +22,12 @@
   bottom: 0;
 }
 
+.header__logo {
+  width: 142px;
+  height: 33px;
+  object-fit: contain;
+}
+
 @media screen and (max-width: 480px) {
   .header {
     min-height: 85px;
@@ -31,4 +35,11 @@
   .header::before {
     width: calc(100% + 40px);
   }
+
+  .header__logo {
+    width: 104px;
+    height: 24px;
+    margin: 0 0 0 7px;
+  }
 }
+

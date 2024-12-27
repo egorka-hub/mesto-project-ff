@@ -1,123 +1,85 @@
-// index.js
-
 // ====== Imports ======
 import './pages/index.css';
-import { initialCards } from './components/cards.js';
 import {
   createCard,
-  handleLikeCard,
-  handleDeleteCard,
-} from './components/createCard.js';
+  loadCards
+} from './js/card';
+import { openPopup, closePopup, setupPopupEventListeners } from './js/modal.js';
+import { enableValidation, clearValidation, uninstallFormValidation } from './js/validation.js';
+import { updateUser } from './js/api';
 import {
-  openPopup,
-  closePopup,
-  setupPopupEventListeners,
-} from './components/modal.js';
-import {
-  setFormValidation,
-  resetValidation,
-} from './components/validationForm.js';
+  loadUserInfo,
+  setUserInfo
+} from './js/user';
 
 // ====== DOM Elements ======
 const popups = document.querySelectorAll('.popup');
-const cardContainer = document.querySelector('.places__list');
+
 const popupEdit = document.querySelector('.popup_type_edit');
 const popupNewCard = document.querySelector('.popup_type_new-card');
-const popupImage = document.querySelector('.popup_type_image');
-const popupImageElement = popupImage.querySelector('.popup__image');
-const popupCaption = popupImage.querySelector('.popup__caption');
-const popupEditOpenButton = document.querySelector('.profile__edit-button');
 const popupNewCardOpenButton = document.querySelector('.profile__add-button');
-const formEditProfile = document.querySelector(
-  '.popup__form[name="edit-profile"]'
-);
-const nameInput = formEditProfile.querySelector('.popup__input_type_name');
-const jobInput = formEditProfile.querySelector(
-  '.popup__input_type_description'
-);
-const profileTitle = document.querySelector('.profile__title');
-const profileDescription = document.querySelector('.profile__description');
+
 const formNewCard = document.querySelector('.popup__form[name="new-place"]');
-const inputCardName = formNewCard.querySelector('.popup__input_type_card-name');
-const inputCardLink = formNewCard.querySelector('.popup__input_type_url');
 
-// ====== Utility Functions ======
+const popupEditOpenButton = document.querySelector('.profile__edit-button');
+const formEditProfile = document.querySelector('.popup__form[name="edit-profile"]');
 
-// Open image popup
-function openImagePopup(name, link) {
-  popupImageElement.src = link;
-  popupImageElement.alt = name;
-  popupCaption.textContent = name;
-  openPopup(popupImage);
-}
+export const validationConfig = {
+  inputSelector: '.popup__input',
+  errorClass: 'popup__input-error_active',
+  submitButtonSelector: '.popup__button',
+};
 
-// Render cards
-function renderCards(cards) {
-  cards.forEach((cardData) => {
-    const cardElement = createCard(
-      cardData,
-      handleDeleteCard,
-      handleLikeCard,
-      openImagePopup
-    );
-    cardContainer.appendChild(cardElement);
-  });
-}
-
-// Handle edit profile form submission
-function handleEditProfileSubmit(evt) {
+async function submitEditProfile(evt) {
   evt.preventDefault();
+  const name = formEditProfile.querySelector('.popup__input_type_name').value;
+  const about = formEditProfile.querySelector('.popup__input_type_description').value;
 
-  profileTitle.textContent = nameInput.value;
-  profileDescription.textContent = jobInput.value;
+  const res = await updateUser({name, about});
+
+  setUserInfo(res.name, res.about);
 
   closePopup(popupEdit);
+  uninstallFormValidation(formEditProfile, validationConfig);
 }
 
-// Handle new card form submission
-function handleNewCardSubmit(evt) {
+async function submitNewCard(evt) {
   evt.preventDefault();
+  const name = formNewCard.querySelector('.popup__input_type_card-name').value;
+  const link = formNewCard.querySelector('.popup__input_type_url').value;
 
-  const newCard = createCard(
-    { name: inputCardName.value, link: inputCardLink.value },
-    handleDeleteCard,
-    handleLikeCard,
-    openImagePopup
-  );
-  cardContainer.prepend(newCard);
+  await createCard({name, link});
 
   closePopup(popupNewCard);
-  formNewCard.reset();
-  resetValidation(formNewCard); // Сбрасываем состояние кнопки при закрытии
+  uninstallFormValidation(formNewCard, validationConfig);
 }
-
-// ====== Initialization ======
 
 // Add animation class to popups
 popups.forEach((popup) => popup.classList.add('popup_is-animated'));
 
 // Add event listeners
-popupEditOpenButton.addEventListener('click', () => {
-  resetValidation(formEditProfile); // Очистка ошибок перед открытием формы
-  nameInput.value = profileTitle.textContent; // Подстановка валидных данных
-  jobInput.value = profileDescription.textContent;
+popupEditOpenButton.onclick = () => {
   openPopup(popupEdit);
-});
+};
 
-popupNewCardOpenButton.addEventListener('click', () => {
-  resetValidation(formNewCard); // Очистка ошибок и сброс кнопки
+popupNewCardOpenButton.onclick = () => {
   openPopup(popupNewCard);
-});
+};
 
-formEditProfile.addEventListener('submit', handleEditProfileSubmit);
-formNewCard.addEventListener('submit', handleNewCardSubmit);
+formEditProfile.onsubmit = async (e) => {await submitEditProfile(e)};
+formNewCard.onsubmit = async (e) => {await submitNewCard(e)};
 
-// Setup popup event listeners
 setupPopupEventListeners(popups);
 
-// Render initial cards
-renderCards(initialCards);
+await Promise.all([loadUserInfo(), loadCards()]);
 
-// Enable validation for both forms
-setFormValidation(formEditProfile);
-setFormValidation(formNewCard);
+enableValidation({
+  formSelector: '.popup__form',
+  inputSelector: '.popup__input',
+  submitButtonSelector: '.popup__button',
+  inactiveButtonClass: 'popup__button_disabled',
+  inputErrorClass: 'popup__input_error',
+  errorClass: 'popup__input-error_active',
+  errorSelector: '.popup__input-error',
+});
+
