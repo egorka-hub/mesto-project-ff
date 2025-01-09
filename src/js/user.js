@@ -2,7 +2,6 @@ import { getUser, updateAvatar } from './api';
 import { closePopup, openPopup } from './modal';
 import {
   clearValidation,
-  uninstallFormValidation
 } from './validation';
 import { validationConfig } from '../index.js';
 
@@ -45,14 +44,16 @@ export function setUserInfo(name, about) {
 
 async function onSubmitAvatar(e) {
   e.preventDefault();
-  const link = formUpdateAvatar.querySelector('.popup__input_type_url').value;
+  const link = formUpdateAvatar.querySelector('.popup__input_type_avatar').value;
+
+  if (!link) {return;}
 
   await updateAvatar(link).then((res) => {
     setAvatarImage(res.avatar);
-  });
+  }).catch(e => console.error(`Ошибка при выполнении запроса: ${e}`));;
 
   closePopup(popupAvatar);
-  uninstallFormValidation(formUpdateAvatar, validationConfig);
+  clearValidation(formUpdateAvatar, validationConfig);
 }
 
 formUpdateAvatar.onsubmit = async (e) => {await onSubmitAvatar(e);};
