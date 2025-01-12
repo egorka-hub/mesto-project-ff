@@ -50,7 +50,10 @@
               class="popup__input popup__input_type_name"
               placeholder="Имя"
               required
-              pattern="[a-zA-Zа-яА-я\s]{2,40}"
+              minlength="2"
+              maxlength="40"
+              pattern="^[a-zA-Zа-яёА-ЯЁ\-\s]*$"
+              data-error="Разрешены только латинские, кириллические буквы, знаки дефиса и пробелы"
             />
             <span class="popup__input-error" id="name-error"></span>
 
@@ -59,7 +62,11 @@
               name="description"
               class="popup__input popup__input_type_description"
               placeholder="Занятие"
-              pattern="[a-zA-Zа-яА-я\s]{2,200}"
+              minlength="2"
+              maxlength="200"
+              pattern="^[a-zA-Zа-яёА-ЯЁ\-,.\s]*$"
+              data-error="Разрешены только латинские, кириллические буквы, знаки дефиса, пробелы, запятые и точки"
+              required
             />
             <span class="popup__input-error" id="description-error"></span>
 
@@ -78,7 +85,10 @@
               class="popup__input popup__input_type_card-name"
               placeholder="Название"
               required
-              pattern="[a-zA-Zа-яА-я\s]{2,30}"
+              data-error="Разрешены только латинские, кириллические буквы, знаки дефиса и пробелы"
+              minlength="2"
+              maxlength="30"
+              pattern="^[a-zA-Zа-яёА-ЯЁ\-\s]*$"
             />
             <span class="popup__input-error" id="place-name-error"></span>
 
@@ -134,6 +144,7 @@
 
     <template id="card-template">
       <li class="places__item card">
+        <button class="card__delete-button"></button>
         <img class="card__image" src="" alt="" />
         <div class="card__description">
           <h2 class="card__title"></h2>

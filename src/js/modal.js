@@ -21,8 +21,11 @@ export function handleEscape(event) {
 // Закрытие Popup по клику вне окна
 export function setupPopupEventListeners(popups) {
   popups.forEach((popup) => {
-    popup.onclick = (event) => {
-      if (event.target.classList.contains('popup') || event.target.classList.contains('popup__close')) {closePopup(popup);}
+    popup.onmousedown = (event) => {
+      if (event.target.classList.contains('popup') || event.target.classList.contains('popup__close')) {
+        closePopup(popup);
+      }
+      popup.classList.add("popup_is-animated");
     };
   });
 }

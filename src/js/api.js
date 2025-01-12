@@ -6,7 +6,13 @@ const headers = {
 const baseUrl = 'https://nomoreparties.co/v1/cohort-mag-4';
 
 async function api(url, method, body) {
-  return fetch(`${baseUrl}${url}`, {method, body: JSON.stringify(body), headers}).then(res => res.json());
+  return fetch(`${baseUrl}${url}`, {method, body: JSON.stringify(body), headers}).then(res => {
+    if (res.ok) {
+      return res.json();
+    } else {
+      return Promise.reject(res.status);
+    }
+  });
 }
 
 export async function getUser() {

@@ -1,89 +1,81 @@
-const BTN_DISABLED_ATTR = 'disabled';
-
 // Активация/деактивация кнопки
 function validateSubmitButton(form, config) {
   const inputs = Array.from(form.querySelectorAll(config.inputSelector));
   const button = form.querySelector(config.submitButtonSelector);
-  const isValid = inputs.every(input => validateInput(input, config));
+  const hasInvalidInput = inputs.some(input => !input.validity.valid);
 
-  if (isValid) {
-    button.removeAttribute(BTN_DISABLED_ATTR);
-    button.classList.remove(config.inactiveButtonClass);
+  if (hasInvalidInput) {
+    disableButton(button);
   } else {
-    button.setAttribute(BTN_DISABLED_ATTR, 'true');
-    button.classList.add(config.inactiveButtonClass);
+    activateButton(button);
   }
 }
 
-// Добавление слушателей событий
+const activateButton = (button, inactivateClass) => {
+  button.classList.remove(inactivateClass);
+  button.disabled = false;
+};
+
+const disableButton = (button, inactivateClass) => {
+  button.classList.add(inactivateClass);
+  button.disabled = true;
+};
+
 function installFormValidation(form, config) {
-  clearValidation(form, config);
-
   const inputs = Array.from(form.querySelectorAll(config.inputSelector));
+
   inputs.forEach((input) => {
-    const validateHandler = () => {
-      validateInput(input, config);
+    input.addEventListener("input", () => {
+      validateInput(form, input, config);
       validateSubmitButton(form, config);
-    };
-    input.addEventListener('input', validateHandler);
-    input._validateHandler = validateHandler;
-  });
-
-  validateSubmitButton(form, config);
-}
-
-// Сброс ошибок и состояния формы
-function clearValidation(form, config) {
-  const button = form.querySelector(config.submitButtonSelector);
-  const inputs = Array.from(form.querySelectorAll(config.inputSelector));
-
-  inputs.forEach((input) => {
-    const errorElement = form.querySelector(`#${input.name}-error`);
-    if (errorElement) {
-      errorElement.textContent = '';
-      errorElement.classList.remove(config.errorClass);
-    }
-  });
-
-  button.classList.add(config.inactiveButtonClass);
-}
-
-// Включение валидации
-function enableValidation(config) {
-  const forms = document.querySelectorAll(config.formSelector);
-  forms.forEach((form) => {
-    installFormValidation(form, config);
+    });
   });
 }
 
-export function validateInput(input, config) {
-  const errorElement = input.closest('form').querySelector(`#${input.name}-error`);
-  let error = '';
+const enableValidation = (config) => {
+  const forms = Array.from(document.querySelectorAll(config.formSelector));
+  forms.forEach((form) => {installFormValidation(form, config);});
+};
 
-  const { name, value } = input;
+const clearValidation = (form, config) => {
+  const inputList = Array.from(
+    form.querySelectorAll(config.inputSelector)
+  );
+  const button = form.querySelector(
+    config.submitButtonSelector
+  );
+  inputList.forEach((inputElement) => {
+    hideError(form, inputElement, config);
+    inputElement.setCustomValidity("");
+  });
+  disableButton(button, config.inactiveButtonClass);
+};
 
-  if (name === 'name') {
-    error = 'Длина должна быть 2-40 симоволов. Обязательное поле.'
-  } else if (name === 'place-name') {
-    error = 'Длина должна быть 2-30 симоволов. Обязательное поле.';
-  } else if (name === 'description') {
-    error = 'Длина должна быть 2-200 симоволов. Обязательное поле.';
-  } else if (name === 'link') {
-    error = 'Неверный формат ссылки.';
+const validateInput = (form, input, config) => {
+  if (input.validity.patternMismatch) {
+    input.setCustomValidity(input.dataset.error);
+  } else {
+    input.setCustomValidity("");
   }
-
-  if (!input.validity.valid && errorElement && value) {
-    errorElement.textContent = error || '';
-    errorElement.classList.toggle(config.errorClass, true);
-    input.classList.toggle(config.inputErrorClass, true);
+  if (!input.validity.valid) {
+    showError(form, input, config);
+  } else {
+    hideError(form, input, config);
   }
-  if (input.validity.valid && errorElement && value) {
-    errorElement.textContent = '';
-    errorElement.classList.toggle(config.errorClass, false);
-    input.classList.toggle(config.inputErrorClass, false);
-  }
+};
 
-  return input.validity.valid;
-}
+const hideError = (form, input, config) => {
+  const errorElement = form.querySelector(`#${input.name}-error`);
+  input.classList.remove(config.inputErrorClass);
+  errorElement.classList.remove(config.errorClass);
+  errorElement.textContent = "";
+};
+
+const showError = (form, input, config) => {
+  const errorElement = form.querySelector(`#${input.name}-error`);
+  input.classList.add(config.inputErrorClass);
+  errorElement.textContent = input.validationMessage;
+  errorElement.classList.add(config.errorClass);
+};
 
 export { enableValidation, clearValidation };
