@@ -58,14 +58,13 @@ async function onSubmitAvatar(e) {
   await updateAvatar(link)
     .then((res) => {
       avatar.style.backgroundImage = `url(\"${res.avatar}\")`;
+      closePopup(popupAvatar);
+      clearValidation(formUpdateAvatar, validationConfig);
     })
     .catch(e => console.error(`Ошибка при выполнении запроса: ${e}`))
     .finally(() => {
       renderLoadingPopup(popupAvatar, false);
     });
-
-  closePopup(popupAvatar);
-  clearValidation(formUpdateAvatar, validationConfig);
 }
 
 formUpdateAvatar.onsubmit = async (e) => {await onSubmitAvatar(e);};
@@ -115,10 +114,12 @@ const callbacks = {
 
 async function onSubmitDelete(e, cardId) {
   e.preventDefault();
-  await handleDelete(e, cardId).then(() => {
-    closePopup(popupDelete);
-    formDeleteCard.onsubmit = null;
-  });
+  await handleDelete(e, cardId)
+    .then(() => {
+      closePopup(popupDelete);
+      formDeleteCard.onsubmit = null;
+  })
+    .catch(e => console.error(`Ошибка при выполнение запросов: ${e}`));
 }
 
 export function handleOpenDeleteCard(e, cardId) {
@@ -171,7 +172,7 @@ formNewCard.onsubmit = async (e) => {await submitNewCard(e)};
 
 setupPopupEventListeners(popups);
 
-await Promise.all([getUser(), getCards()])
+Promise.all([getUser(), getCards()])
   .then(res => {
     const userData = res[0];
     const initialData = res[1];

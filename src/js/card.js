@@ -32,7 +32,7 @@ function createChild(data, userId, callbacks) {
   return clone;
 }
 
-export function hasLike(card, userId) {
+function hasLike(card, userId) {
   return !!card.likes.find(it => it._id === userId);
 }
 
